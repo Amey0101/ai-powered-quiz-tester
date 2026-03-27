@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>प्रश्नमंजुषा</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            padding-top: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+        }
+        #quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        .question {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .tab-content .question:last-child {
+            margin-bottom: 75px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+        }
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #3a3a3a;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #e0e0e0;
+            transition: background-color 0.3s;
+        }
+        .option-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #444;
+            border-radius: 5px;
+            border: 1px solid #555;
+            color: #fff;
+        }
+        .question-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #444;
+            border-radius: 5px;
+            border: 1px solid #555;
+            color: #fff;
+            font-size: 16px;
+        }
+        .correct {
+            background: linear-gradient(180deg, #00cc00 0%, #005804 100%);
+            color: white;
+        }
+        .wrong {
+            background: linear-gradient(180deg, #cc0000 0%, #690000 100%);
+            color: white;
+        }
+        #submit-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .fixed-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 800px;
+            background-color: #2c2c2c;
+            padding: 10px 0;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 10px rgba(14,14,14,0.874);
+        }
+        .fixed-content {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+        #result {
+            text-align: center;
+            font-size: 20px;
+            margin: 10px 0;
+            color: #e0e0e0;
+            display: none;
+        }
+        .wrapper {
+            height: 60px;
+            width: min(90%, 600px);
+            background: #262626;
+            line-height: 60px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+            margin: 10px auto;
+            display: none;
+        }
+        .wrapper nav {
+            position: relative;
+            display: flex;
+        }
+        .wrapper nav label {
+            flex: 1;
+            width: 100%;
+            z-index: 1;
+            cursor: pointer;
+            transition: background-color 0.6s ease, color 0.6s ease;
+            border-radius: 50px;
+            position: relative;
+            text-align: center;
+        }
+        .wrapper nav label a {
+            position: relative;
+            color: #ffffff;
+            font-size: clamp(14px, 2vw, 18px);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+            transition: color 0.6s ease;
+        }
+        .wrapper nav label a i {
+            font-size: clamp(18px, 3vw, 22px);
+            margin: 0 5px;
+        }
+        .wrapper nav label {
+            background: #ffffff00;
+            color: #1d1f20;
+        }
+        .wrapper nav .tab {
+            position: absolute;
+            height: 100%;
+            width: 33.333%;
+            left: 0;
+            bottom: 0;
+            z-index: 0;
+            border-radius: 10px;
+            transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: linear-gradient(180deg, #00cc00 0%, #005804 100%);
+        }
+        .wrapper nav #wrong:checked ~ .tab {
+            left: 33.333%;
+            background: linear-gradient(180deg, #cc0000 0%, #690000 100%);
+        }
+        .wrapper nav #unsolved:checked ~ .tab {
+            left: 66.666%;
+            background: linear-gradient(180deg, #666666 0%, #313131 100%);
+        }
+        .wrapper nav #correct:checked ~ .tab {
+            left: 0;
+            background: linear-gradient(180deg, #00cc00 0%, #005804 100%);
+        }
+        .wrapper nav #correct:checked ~ label.correct a,
+        .wrapper nav #wrong:checked ~ label.wrong a,
+        .wrapper nav #unsolved:checked ~ label.wrong a {
+            color: #fff;
+        }
+        .wrapper nav input {
+            display: none;
+        }
+        .progress-container {
+            max-width: 600px;
+            margin: 10px auto;
+            display: none;
+        }
+        .progress-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background-color: #3a3a3a;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(180deg, #00cc00 0%, #005804 100%);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+    .content-slider {
+        max-width: 800px;
+        margin: 20px auto 0 auto;
+        overflow: hidden;
+        position: relative;
+        height: auto;
+        padding-bottom: 0;
+    }
+    .content-slider.submitted {
+            padding-bottom: 0;
+        }
+    .slider-wrapper {
+        display: flex;
+        width: 300%;
+        transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        gap: 20px;
+        padding: 0 10px;
+        height: 100%;
+    }
+    
+    .tab-content {
+        width: calc(33.33% - 10px);
+        margin: 0 5px;
+        padding: 20px;
+        background-color: #2c2c2c;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+        position: relative;
+        height: 100%;
+        overflow-y: auto;
+        max-height: calc(100vh - 250px);
+    }
+        .tab-content.hidden {
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+        }
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        .pagination button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .pagination button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .pagination button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        .search-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .ai-btn, .edit-btn {
+            padding: 5px 10px;
+            margin: 0 5px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+        .ai-btn {
+            background: linear-gradient(180deg, #743eff 0%, #003afd 100%);
+            position: relative;
+        }
+        .ai-btn:hover {
+            background-color: #b853ff;
+        }
+        .edit-btn {
+          width: 20px;
+            background-color: #343434;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #3f3f3f;
+        }
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .save-btn:hover {
+            background-color: #3e8e41;
+        }
+        .wrapper nav label .count {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            background: rgba(33,33,33,0.546);
+            padding: 2px 40px;
+            border-radius: 7px;
+            line-height: 1;
+        }
+        .improved-option {
+            background: linear-gradient(180deg, #00cc00 0%, #005804 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .improved-option .improved-text {
+            font-size: 12px;
+            background: #34343489;
+            padding: 5px 8px; 
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .improved-option .improved-text i {
+            font-size: 12px;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .tab-buttons {
+            text-align: center;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        @media (min-width: 768px) {
+            .tab-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+        .tab-buttons button {
+            padding: 12px 16px;
+            margin: 0 5px;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+            min-width: 120px;
+            text-align: center;
+        }
+        .tab-buttons button.active {
+            background-color: #007BFF;
+            color: white;
+        }
+        .tab-buttons button:hover:not(.active) {
+            background-color: #4a4a4a;
+        }
+        #file-upload-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #file-input {
+            padding: 10px;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+        .correct-option-selector {
+            margin-top: 15px;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .correct-option-selector select {
+            width: 100%;
+            padding: 8px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+        .correct-option-selector label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .ai-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #3a3a3a;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            flex-direction: column;
+        }
+        .ai-dropdown.show {
+            display: flex;
+        }
+        .ai-dropdown-btn {
+            padding: 8px 10px;
+            text-align: left;
+            background-color: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ai-dropdown-btn:hover {
+            background-color: #4a4a4a;
+        }
+        .ai-dropdown-btn i {
+            width: 20px;
+            text-align: center;
+        }
+        /* Hamburger Menu Styles */
+        .menu-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+        }
+        .menu-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 10001;
+            overflow: hidden;
+        }
+        .menu-dropdown.show {
+            display: block;
+        }
+        .menu-item {
+            padding: 12px 15px;
+            color: #e0e0e0;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+            transition: background-color 0.3s;
+        }
+        .menu-item:hover {
+            background-color: #3a3a3a;
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+        .hardcore-badge {
+            background-color: #dc3545;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+        /* Hardcore Sort Options */
+        .hardcore-sort-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .hardcore-sort-btn {
+            padding: 8px 12px;
+            background-color: #444;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+        .hardcore-sort-btn.active {
+            background-color: #007BFF;
+            color: white;
+        }
+        .hardcore-sort-btn:hover:not(.active) {
+            background-color: #555;
+        }
+        @media (max-width: 480px) {
+            .hardcore-sort-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu -->
+    <div class="menu-container">
+        <button class="menu-btn" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="menu-dropdown" id="menuDropdown">
+            <div class="menu-item" onclick="exportUpdatedMCQs()">
+                <i class="fas fa-download"></i>
+                Export MCQs
+            </div>
+            <div class="menu-item" onclick="startHardcorePractice()">
+                <i class="fas fa-fire"></i>
+                Practice Hardcore
+                <span class="hardcore-badge" id="hardcoreCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <h1>प्रश्नमंजुषा</h1>
+    
+    <div id="file-upload-container">
+        <input type="file" id="file-input" accept=".json" onchange="loadQuizData(event)">
+        <p>कृपया JSON फाइल अपलोड करा (प्रश्न, पर्याय आणि बरोबर उत्तर असलेली)</p>
+    </div>
+    <div class="tab-buttons" id="pre-submit-tabs" style="display: none;">
+        <button class="tab-btn active" data-tab="tab1" onclick="switchTab('tab1')">रँडम प्रश्न</button>
+        <button class="tab-btn" data-tab="tab2" onclick="switchTab('tab2')">सर्व प्रश्न</button>
+        <button class="tab-btn" data-tab="tab3" onclick="switchTab('tab3')" id="hardcore-tab-btn" style="display: none;">Practice Hardcore</button>
+    </div>
+    <div id="quiz-container"></div>
+    <div class="pagination" id="all-questions-pagination">
+        <button id="prev-btn" onclick="prevPage()">मागील</button>
+        <span id="page-info"></span>
+        <button id="next-btn" onclick="nextPage()">पुढील</button>
+    </div>
+    <button id="submit-btn" onclick="submitQuiz()" style="display: none;">सबमिट करा</button>
+    
+    <div class="fixed-bottom" id="fixed-container">
+        <div class="fixed-content">
+            <div id="result"></div>
+            <div class="wrapper" id="tabs">
+                <nav>
+                    <input type="radio" name="tab" id="correct" checked>
+                    <input type="radio" name="tab" id="wrong">
+                    <input type="radio" name="tab" id="unsolved">
+                    <label for="correct" class="correct">
+                        <a href="#" onclick="showTab('correct-tab'); return false;"><i class="fas fa-check-circle"></i>बरोबर<span class="count" id="correct-count">0</span></a>
+                    </label>
+                    <label for="wrong" class="wrong">
+                        <a href="#" onclick="showTab('wrong-tab'); return false;"><i class="fas fa-times-circle"></i>चूक<span class="count" id="wrong-count">0</span></a>
+                    </label>
+                    <label for="unsolved" class="unsolved">
+                        <a href="#" onclick="showTab('unsolved-tab'); return false;"><i class="fas fa-question-circle"></i>निवडले नाही<span class="count" id="unsolved-count">0</span></a>
+                    </label>
+                    <div class="tab"></div>
+                </nav>
+            </div>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-label">Improvement: <span id="progress-text">0%</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-slider">
+        <div class="slider-wrapper">
+            <div id="correct-tab" class="tab-content"></div>
+            <div id="wrong-tab" class="tab-content"></div>
+            <div id="unsolved-tab" class="tab-content"></div>
+        </div>
+    </div>
+
+    <script>
+     let quizData = [];
+let score = 0;
+let userAnswers = [];
+let currentPage = 0;
+const questionsPerPage = 10;
+let isAnimating = false;
+let improvedQuestions = new Set();
+let currentTab = 'tab1';
+let editingQuestionIndex = -1;
+let hardcoreData = JSON.parse(localStorage.getItem('hardcore_mcqs')) || [];
+let hardcoreSortType = 'random'; // 'random', 'timeAsc', 'timeDesc'
+
+// Load hardcore data from localStorage
+function loadHardcoreData() {
+    const savedHardcore = localStorage.getItem('hardcore_mcqs');
+    if (savedHardcore) {
+        hardcoreData = JSON.parse(savedHardcore);
+    }
+    updateHardcoreBadge();
+}
+
+// Update the badge count
+function updateHardcoreBadge() {
+    const hardcoreCount = document.getElementById('hardcoreCount');
+    if (hardcoreCount) {
+        hardcoreCount.textContent = hardcoreData.length;
+    }
+    
+    // Show/hide hardcore tab button
+    const hardcoreTabBtn = document.getElementById('hardcore-tab-btn');
+    if (hardcoreTabBtn) {
+        hardcoreTabBtn.style.display = hardcoreData.length > 0 ? 'inline-block' : 'none';
+    }
+}
+
+// Save hardcore data to localStorage
+function saveHardcore() {
+    localStorage.setItem('hardcore_mcqs', JSON.stringify(hardcoreData));
+    updateHardcoreBadge();
+}
+
+// Add question to hardcore mode
+function addToHardcore(questionObj) {
+    // Check if question already exists
+    const exists = hardcoreData.find(q => q.question === questionObj.question);
+    if (!exists) {
+        hardcoreData.push({
+            ...questionObj,
+            correctStreak: 0, // Track correct answers
+            addedTime: Date.now() // Track when added
+        });
+        saveHardcore();
+        return true;
+    }
+    return false;
+}
+
+// Sort hardcore questions based on sort type
+function sortHardcoreQuestions(questions) {
+    const sorted = [...questions];
+    
+    switch(hardcoreSortType) {
+        case 'timeAsc':
+            // Oldest first
+            return sorted.sort((a, b) => (a.addedTime || 0) - (b.addedTime || 0));
+        case 'timeDesc':
+            // Newest first
+            return sorted.sort((a, b) => (b.addedTime || 0) - (a.addedTime || 0));
+        case 'random':
+        default:
+            // Random order
+            return shuffleArray(sorted);
+    }
+}
+
+// Update sort buttons UI
+function updateHardcoreSortButtons() {
+    const buttons = document.querySelectorAll('.hardcore-sort-btn');
+    buttons.forEach(btn => {
+        if (btn.dataset.sort === hardcoreSortType) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// Generate hardcore questions
+function generateHardcoreQuestions() {
+    const sortedQuestions = sortHardcoreQuestions(hardcoreData);
+    return sortedQuestions.map(item => ({
+        ...item,
+        options: shuffleArray([...item.options]),
+        isHardcore: true
+    }));
+}
+
+// Render hardcore questions
+function renderHardcoreQuestions(questions, container) {
+    if (questions.length === 0) {
+        container.innerHTML = '<p>🔥 Practice Hardcore मध्ये सध्या कोणतेही प्रश्न नाहीत!</p>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <h2 style="text-align: center; color: #ff6b6b;">🔥 Practice Hardcore</h2>
+        <p style="text-align:center; margin-bottom: 20px;">हे प्रश्न पूर्णपणे हटवण्यासाठी २ वेळा बरोबर सोडवा.</p>
+        
+        <div class="hardcore-sort-options">
+            <button class="hardcore-sort-btn active" data-sort="random" onclick="changeHardcoreSort('random')">
+                <i class="fas fa-random"></i> Random
+            </button>
+            <button class="hardcore-sort-btn" data-sort="timeAsc" onclick="changeHardcoreSort('timeAsc')">
+                <i class="fas fa-clock"></i> Oldest First
+            </button>
+            <button class="hardcore-sort-btn" data-sort="timeDesc" onclick="changeHardcoreSort('timeDesc')">
+                <i class="fas fa-clock"></i> Newest First
+            </button>
+        </div>
+    `;
+    
+    questions.forEach((item, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+        
+        // Format time if exists
+        let timeInfo = '';
+        if (item.addedTime) {
+            const date = new Date(item.addedTime);
+            timeInfo = `<small style="font-size: 10px; color: #888; display: block; margin-top: 5px;">
+                Added: ${date.toLocaleDateString()}
+            </small>`;
+        }
+        
+        questionDiv.innerHTML = `
+            <h3>${index + 1}. ${item.question} 
+                <small style="font-size: 12px; color: #ffd700;">(Streak: ${item.correctStreak || 0}/6)</small>
+            </h3>
+            ${timeInfo}
+        `;
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('options');
+
+        item.options.forEach(option => {
+            const optionDiv = document.createElement('div');
+            optionDiv.classList.add('option');
+            optionDiv.innerText = option;
+            optionDiv.onclick = () => {
+                handleHardcoreSelection(optionDiv, option, item, optionsDiv, index);
+            };
+            optionsDiv.appendChild(optionDiv);
+        });
+        
+        // Add AI button for hardcore questions too
+        const searchButtonsDiv = document.createElement('div');
+        searchButtonsDiv.classList.add('search-buttons');
+        
+        const aiBtn = document.createElement('button');
+        aiBtn.classList.add('ai-btn');
+        aiBtn.innerText = 'AI शोधा';
+        aiBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleAiDropdown(aiBtn, item);
+        };
+
+        // Create dropdown for AI services
+        const aiDropdown = document.createElement('div');
+        aiDropdown.classList.add('ai-dropdown');
+        aiServices.forEach(service => {
+            const btn = document.createElement('button');
+            btn.classList.add('ai-dropdown-btn');
+            btn.innerHTML = `<i class="${service.icon}"></i> ${service.name}`;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const searchQuery = `${item.question} पर्याय: ${item.options.join(', ')}`;
+                window.open(`${service.url}${encodeURIComponent(searchQuery)}`, '_blank');
+            };
+            aiDropdown.appendChild(btn);
+        });
+        aiBtn.appendChild(aiDropdown);
+        
+        searchButtonsDiv.appendChild(aiBtn);
+        questionDiv.appendChild(optionsDiv);
+        questionDiv.appendChild(searchButtonsDiv);
+        container.appendChild(questionDiv);
+    });
+    
+    // Update sort buttons UI
+    updateHardcoreSortButtons();
+}
+
+// Change hardcore sort type
+function changeHardcoreSort(sortType) {
+    hardcoreSortType = sortType;
+    if (currentTab === 'tab3') {
+        switchTab('tab3');
+    }
+}
+
+// Handle hardcore question selection
+function handleHardcoreSelection(optionDiv, selected, item, optionsDiv, originalIndex) {
+    const allOptions = optionsDiv.querySelectorAll('.option');
+    allOptions.forEach(opt => opt.style.pointerEvents = 'none');
+
+    // Find the actual index in hardcoreData
+    const hardcoreIndex = hardcoreData.findIndex(q => q.question === item.question);
+    if (hardcoreIndex === -1) return;
+
+    if (selected === item.correct_answer) {
+        optionDiv.classList.add('correct');
+        
+        // Initialize or increment streak
+        if (!hardcoreData[hardcoreIndex].correctStreak) {
+            hardcoreData[hardcoreIndex].correctStreak = 1;
+        } else {
+            hardcoreData[hardcoreIndex].correctStreak += 1;
+        }
+        
+        // Remove if correct twice
+        if (hardcoreData[hardcoreIndex].correctStreak >= 6) {
+            optionDiv.innerHTML = `
+                <span>${selected}</span>
+                <span class="improved-text"><i class="fas fa-check-circle"></i> Mastered!</span>
+            `;
+            optionDiv.classList.remove('correct');
+            optionDiv.classList.add('improved-option');
+            
+            setTimeout(() => {
+                hardcoreData.splice(hardcoreIndex, 1);
+                saveHardcore();
+                
+                // Refresh the hardcore practice view
+                if (currentTab === 'tab3') {
+                    switchTab('tab3');
+                    
+                    // If no more hardcore questions, show message
+                    if (hardcoreData.length === 0) {
+                        setTimeout(() => {
+                            alert('सर्व Hardcore प्रश्न यशस्वीरित्या सोडवले गेले आहेत! 🎉');
+                        }, 500);
+                    }
+                }
+            }, 1000);
+        } else {
+            saveHardcore();
+            
+            // Update streak display
+            const questionDiv = optionsDiv.parentElement;
+            const h3Element = questionDiv.querySelector('h3');
+            h3Element.innerHTML = `
+                ${originalIndex + 1}. ${item.question} 
+                <small style="font-size: 12px; color: #ffd700;">(Streak: ${hardcoreData[hardcoreIndex].correctStreak}/6)</small>
+            `;
+        }
+    } else {
+        optionDiv.classList.add('wrong');
+        
+        // Reset streak on wrong answer
+        hardcoreData[hardcoreIndex].correctStreak = 0;
+        saveHardcore();
+        
+        // Update streak display
+        const questionDiv = optionsDiv.parentElement;
+        const h3Element = questionDiv.querySelector('h3');
+        h3Element.innerHTML = `
+            ${originalIndex + 1}. ${item.question} 
+            <small style="font-size: 12px; color: #ff6b6b;">(Streak: 0/6)</small>
+        `;
+        
+        // Show correct answer
+        allOptions.forEach(opt => {
+            if (opt.innerText === item.correct_answer) {
+                opt.classList.add('correct');
+            }
+        });
+    }
+}
+
+// Toggle menu
+function toggleMenu() {
+    const menuDropdown = document.getElementById('menuDropdown');
+    menuDropdown.classList.toggle('show');
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function closeMenu(e) {
+        const menuContainer = document.querySelector('.menu-container');
+        if (!menuContainer.contains(e.target)) {
+            menuDropdown.classList.remove('show');
+            document.removeEventListener('click', closeMenu);
+        }
+    }, { once: true });
+}
+
+// Start hardcore practice
+function startHardcorePractice() {
+    if (hardcoreData.length === 0) {
+        alert("Practice Hardcore मध्ये सध्या कोणतेही प्रश्न नाहीत!");
+        return;
+    }
+    
+    // Close menu
+    document.getElementById('menuDropdown').classList.remove('show');
+    
+    // Switch to hardcore tab
+    switchTab('tab3');
+}
+
+const aiServices = [
+    { 
+        name: 'Phind', 
+        url: 'https://phind.com/search?q=', 
+        icon: 'fa-solid fa-p' 
+    },
+    { name: 'Perplexity', url: 'https://www.perplexity.ai/?q=', icon: 'fas fa-search' },
+    { name: 'You.com', url: 'https://you.com/search?q=', icon: 'fas fa-comment' },
+    { name: 'Felo', url: 'https://felo.ai/search?q=', icon: 'fas fa-brain' },
+    { name: 'Uncover', url: 'https://uncovr.app/search?q=', icon: 'fas fa-search-plus' },
+    { name: 'Jina', url: 'https://search.jina.ai/?q=', icon: 'fas fa-search' },
+    { name: 'Google', url: 'https://www.google.com/search?q=', icon: 'fab fa-google' },
+    { name: 'Bing Copilot', url: 'https://www.bing.com/copilotsearch?q=', icon: 'fab fa-microsoft' },
+    { name: 'genspark', url: 'https://www.genspark.ai/search?query=', icon: 'fa-regular fa-star' }
+];
+
+function loadQuizData(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                quizData = JSON.parse(e.target.result);
+                if (!Array.isArray(quizData) || !quizData.every(q => q.question && q.options && q.correct_answer)) {
+                    throw new Error("Invalid JSON format");
+                }
+                userAnswers = new Array(quizData.length).fill(null);
+                document.getElementById('file-upload-container').style.display = 'none';
+                document.getElementById('pre-submit-tabs').style.display = 'block';
+                document.getElementById('submit-btn').style.display = 'block';
+                
+                // Load hardcore data
+                loadHardcoreData();
+                
+                switchTab('tab1');
+            } catch (error) {
+                alert('अवैध JSON फाइल: कृपया प्रश्न, पर्याय आणि बरोबर उत्तर असलेली योग्य फाइल अपलोड करा.');
+                console.error(error);
+            }
+        };
+        reader.readAsText(file);
+    }
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function generateRandomQuestions() {
+    const shuffledData = shuffleArray([...quizData]).slice(0, Math.min(10, quizData.length));
+    return shuffledData.map((item, idx) => {
+        const originalIndex = quizData.findIndex(q => q.question === item.question);
+        return {
+            ...item,
+            options: shuffleArray([...item.options]),
+            originalIndex: originalIndex
+        };
+    });
+}
+
+function generateAllQuestions() {
+    const start = currentPage * questionsPerPage;
+    const end = Math.min(start + questionsPerPage, quizData.length);
+    const paginatedData = quizData.slice(start, end);
+    return paginatedData.map((item, localIndex) => ({
+        ...item,
+        options: shuffleArray([...item.options]),
+        originalIndex: start + localIndex
+    }));
+}
+
+function renderQuestions(questions, container) {
+    container.innerHTML = ''; // Clear container first
+    if (questions.length === 0) {
+        container.innerHTML = '<p>कोणतेही प्रश्न उपलब्ध नाहीत.</p>';
+        return;
+    }
+
+    questions.forEach((item, index) => {
+        const globalIndex = item.originalIndex !== undefined ? item.originalIndex : (currentPage * questionsPerPage + index);
+        const questionNumber = currentTab === 'tab3' ? index + 1 : globalIndex + 1;
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+        questionDiv.innerHTML = `<h3>${questionNumber}. ${item.question}</h3>`;
+        questionDiv.dataset.originalIndex = globalIndex;
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('options');
+
+        item.options.forEach(option => {
+            const optionDiv = document.createElement('div');
+            optionDiv.classList.add('option');
+            optionDiv.innerText = option;
+
+            if (currentTab === 'tab3') {
+                // Hardcore mode
+                optionDiv.onclick = () => {
+                    handleHardcoreSelection(optionDiv, option, item, optionsDiv, index);
+                };
+            } else if (userAnswers[globalIndex] === null) {
+                optionDiv.onclick = () => {
+                    selectOption(optionDiv, option, item.correct_answer, optionsDiv, globalIndex);
+                    userAnswers[globalIndex] = option;
+                };
+            } else {
+                if (option === item.correct_answer) {
+                    optionDiv.classList.add('correct');
+                } else if (option === userAnswers[globalIndex]) {
+                    optionDiv.classList.add('wrong');
+                }
+                optionDiv.style.pointerEvents = 'none';
+            }
+            optionsDiv.appendChild(optionDiv);
+        });
+
+        const searchButtonsDiv = document.createElement('div');
+        searchButtonsDiv.classList.add('search-buttons');
+
+        const editBtn = document.createElement('button');
+        editBtn.classList.add('edit-btn');
+        editBtn.innerText = 'edit';
+        editBtn.onclick = () => {
+            toggleEditMode(questionDiv, globalIndex);
+        };
+        
+        const aiBtn = document.createElement('button');
+        aiBtn.classList.add('ai-btn');
+        aiBtn.innerText = 'AI शोधा';
+        aiBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleAiDropdown(aiBtn, item);
+        };
+
+        // Create dropdown for AI services
+        const aiDropdown = document.createElement('div');
+        aiDropdown.classList.add('ai-dropdown');
+        aiServices.forEach(service => {
+            const btn = document.createElement('button');
+            btn.classList.add('ai-dropdown-btn');
+            btn.innerHTML = `<i class="${service.icon}"></i> ${service.name}`;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const searchQuery = `${item.question} पर्याय: ${item.options.join(', ')}`;
+                window.open(`${service.url}${encodeURIComponent(searchQuery)}`, '_blank');
+            };
+            aiDropdown.appendChild(btn);
+        });
+        aiBtn.appendChild(aiDropdown);
+
+        searchButtonsDiv.appendChild(editBtn);
+        searchButtonsDiv.appendChild(aiBtn);
+        questionDiv.appendChild(optionsDiv);
+        questionDiv.appendChild(searchButtonsDiv);
+        container.appendChild(questionDiv);
+    });
+}
+
+function toggleAiDropdown(button, item) {
+    const dropdown = button.querySelector('.ai-dropdown');
+    dropdown.classList.toggle('show');
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function closeDropdown(e) {
+        if (!button.contains(e.target)) {
+            dropdown.classList.remove('show');
+            document.removeEventListener('click', closeDropdown);
+        }
+    }, { once: true });
+}
+
+function toggleEditMode(questionDiv, questionIndex) {
+    const isEditing = editingQuestionIndex === questionIndex;
+    
+    if (isEditing) {
+        // Save mode - update the question data
+        saveQuestionChanges(questionDiv, questionIndex);
+        editingQuestionIndex = -1;
+    } else {
+        // Edit mode - make fields editable
+        makeQuestionEditable(questionDiv, questionIndex);
+        editingQuestionIndex = questionIndex;
+    }
+}
+
+function makeQuestionEditable(questionDiv, questionIndex) {
+    const questionData = quizData[questionIndex];
+    const h3Element = questionDiv.querySelector('h3');
+    const optionsDiv = questionDiv.querySelector('.options');
+    const editBtn = questionDiv.querySelector('.edit-btn');
+    
+    // Change button text to "Save"
+    editBtn.innerText = 'save';
+    editBtn.classList.remove('edit-btn');
+    editBtn.classList.add('save-btn');
+    
+    // Get the question text (remove the number prefix)
+    const questionText = h3Element.textContent.substring(h3Element.textContent.indexOf('. ') + 2);
+    
+    // Replace question h3 with editable input
+    const questionInput = document.createElement('input');
+    questionInput.type = 'text';
+    questionInput.value = questionText;
+    questionInput.classList.add('question-input');
+    h3Element.innerHTML = `${questionIndex + 1}. `;
+    h3Element.appendChild(questionInput);
+    
+    // Replace options with editable inputs
+    const originalOptions = Array.from(optionsDiv.querySelectorAll('.option')).map(opt => opt.textContent);
+    optionsDiv.innerHTML = '';
+    
+    originalOptions.forEach((option, idx) => {
+        const optionInput = document.createElement('input');
+        optionInput.type = 'text';
+        optionInput.value = option;
+        optionInput.classList.add('option-input');
+        optionInput.dataset.optionIndex = idx;
+        optionsDiv.appendChild(optionInput);
+    });
+    
+    // Add correct answer selector
+    const correctOptionSelector = document.createElement('div');
+    correctOptionSelector.classList.add('correct-option-selector');
+    correctOptionSelector.innerHTML = `
+        <label for="correct-answer-${questionIndex}">बरोबर उत्तर निवडा:</label>
+        <select id="correct-answer-${questionIndex}">
+            ${originalOptions.map((opt, idx) => 
+                `<option value="${idx}" ${opt === questionData.correct_answer ? 'selected' : ''}>${opt}</option>`
+            ).join('')}
+        </select>
+    `;
+    questionDiv.insertBefore(correctOptionSelector, questionDiv.querySelector('.search-buttons'));
+}
+
+function saveQuestionChanges(questionDiv, questionIndex) {
+    const questionInput = questionDiv.querySelector('.question-input');
+    const optionInputs = questionDiv.querySelectorAll('.option-input');
+    const correctAnswerSelect = questionDiv.querySelector(`#correct-answer-${questionIndex}`);
+    const h3Element = questionDiv.querySelector('h3');
+    const optionsDiv = questionDiv.querySelector('.options');
+    const editBtn = questionDiv.querySelector('.save-btn');
+    const correctOptionSelector = questionDiv.querySelector('.correct-option-selector');
+    
+    // Get updated values
+    const newQuestion = questionInput.value;
+    const newOptions = Array.from(optionInputs).map(input => input.value);
+    const correctAnswerIndex = parseInt(correctAnswerSelect.value);
+    const newCorrectAnswer = newOptions[correctAnswerIndex];
+    
+    // Update quiz data
+    quizData[questionIndex].question = newQuestion;
+    quizData[questionIndex].options = newOptions;
+    quizData[questionIndex].correct_answer = newCorrectAnswer;
+    
+    // Update UI
+    h3Element.innerHTML = `${questionIndex + 1}. ${newQuestion}`;
+    optionsDiv.innerHTML = '';
+    
+    newOptions.forEach(option => {
+        const optionDiv = document.createElement('div');
+        optionDiv.classList.add('option');
+        optionDiv.innerText = option;
+        
+        if (userAnswers[questionIndex] === null) {
+            optionDiv.onclick = () => {
+                selectOption(optionDiv, option, newCorrectAnswer, optionsDiv, questionIndex);
+                userAnswers[questionIndex] = option;
+            };
+        } else {
+            if (option === newCorrectAnswer) {
+                optionDiv.classList.add('correct');
+            } else if (option === userAnswers[questionIndex]) {
+                optionDiv.classList.add('wrong');
+            }
+            optionDiv.style.pointerEvents = 'none';
+        }
+        
+        optionsDiv.appendChild(optionDiv);
+    });
+    
+    // Change button back to "Edit"
+    editBtn.innerText = 'edit';
+    editBtn.classList.remove('save-btn');
+    editBtn.classList.add('edit-btn');
+    
+    // Remove correct answer selector
+    questionDiv.removeChild(correctOptionSelector);
+}
+
+function switchTab(tabId) {
+    currentTab = tabId;
+    const quizContainer = document.getElementById('quiz-container');
+    const pagination = document.getElementById('all-questions-pagination');
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.querySelector(`button[data-tab="${tabId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+
+    if (tabId === 'tab1') {
+        const randomQuestions = generateRandomQuestions();
+        renderQuestions(randomQuestions, quizContainer);
+        pagination.style.display = 'none';
+    } else if (tabId === 'tab2') {
+        const allQuestions = generateAllQuestions();
+        renderQuestions(allQuestions, quizContainer);
+        pagination.style.display = 'block';
+        updatePagination();
+    } else if (tabId === 'tab3') {
+        const hardcoreQuestionsList = generateHardcoreQuestions();
+        renderHardcoreQuestions(hardcoreQuestionsList, quizContainer);
+        pagination.style.display = 'none';
+    }
+}
+
+function selectOption(optionDiv, selectedOption, correctAnswer, optionsDiv, index) {
+    const allOptions = optionsDiv.querySelectorAll('.option');
+    allOptions.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        if (opt.innerText === correctAnswer) {
+            opt.classList.add('correct');
+        } else if (opt === optionDiv && opt.innerText !== correctAnswer) {
+            opt.classList.add('wrong');
+        }
+    });
+
+    if (selectedOption === correctAnswer) {
+        score++;
+    } else {
+        // Add wrong answer to hardcore
+        addToHardcore(quizData[index]);
+    }
+}
+
+function prevPage() {
+    if (currentTab === 'tab2' && currentPage > 0) {
+        currentPage--;
+        switchTab('tab2');
+    }
+}
+
+function nextPage() {
+    if (currentTab === 'tab2' && (currentPage + 1) * questionsPerPage < quizData.length) {
+        currentPage++;
+        switchTab('tab2');
+    }
+}
+
+function updatePagination() {
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const pageInfo = document.getElementById('page-info');
+    const totalPages = Math.ceil(quizData.length / questionsPerPage);
+
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = (currentPage + 1) * questionsPerPage >= quizData.length;
+    pageInfo.innerText = `पान ${currentPage + 1} / ${totalPages}`;
+}
+
+function updateTabCounts() {
+    const correctCount = userAnswers.filter((answer, i) => answer === quizData[i].correct_answer).length;
+    const wrongCount = userAnswers.filter((answer, i) => answer && answer !== quizData[i].correct_answer).length;
+    const unsolvedCount = userAnswers.filter(answer => !answer).length;
+
+    document.getElementById('correct-count').textContent = correctCount;
+    document.getElementById('wrong-count').textContent = wrongCount;
+    document.getElementById('unsolved-count').textContent = unsolvedCount;
+}
+
+function updateProgressBar() {
+    const wrongTab = document.getElementById('wrong-tab');
+    const currentWrongCount = wrongTab.querySelectorAll('.question').length;
+    const improvedCount = improvedQuestions.size;
+    
+    let progress = 0;
+    if (currentWrongCount + improvedCount > 0) {
+        progress = Math.round((improvedCount / (currentWrongCount + improvedCount)) * 100);
+    }
+    
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const progressContainer = document.getElementById('progress-container');
+    
+    progressContainer.style.display = 'block';
+    progressFill.style.width = `${progress}%`;
+    progressText.textContent = `${progress}%`;
+}
+
+function exportUpdatedMCQs() {
+    const exportedData = quizData.map(q => ({
+        question: q.question,
+        options: q.options,
+        correct_answer: q.correct_answer
+    }));
+    
+    const json = JSON.stringify(exportedData, null, 4);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "updated_mcqs.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Close menu
+    document.getElementById('menuDropdown').classList.remove('show');
+}
+
+function submitQuiz() {
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'none';
+    document.getElementById('all-questions-pagination').style.display = 'none';
+    document.querySelector('h1').style.display = 'none';
+    document.getElementById('pre-submit-tabs').style.display = 'none';
+
+    const fixedContainer = document.getElementById('fixed-container');
+    fixedContainer.style.display = 'block';
+    fixedContainer.classList.add('fixed-bottom');
+
+    setTimeout(() => {
+        const fixedContainerHeight = fixedContainer.offsetHeight;
+        const buffer = 20;
+        const totalPadding = fixedContainerHeight + buffer;
+
+        document.body.style.paddingTop = '0';
+        document.body.style.paddingBottom = `${totalPadding}px`;
+
+        const contentSlider = document.querySelector('.content-slider');
+        contentSlider.classList.add('submitted');
+        contentSlider.style.marginTop = '0px';
+        contentSlider.style.paddingBottom = `${totalPadding}px`;
+        contentSlider.style.display = 'block';
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `तुमचा स्कोअर: ${score} / ${quizData.length}`;
+
+        const tabsDiv = document.getElementById('tabs');
+        tabsDiv.style.display = 'block';
+
+        updateTabs();
+        updateProgressBar();
+        showTab('correct-tab');
+    }, 0);
+}
+
+function updateTabs() {
+    const correctTab = document.getElementById('correct-tab');
+    const wrongTab = document.getElementById('wrong-tab');
+    const unsolvedTab = document.getElementById('unsolved-tab');
+
+    // Clear all tabs first
+    correctTab.innerHTML = '';
+    wrongTab.innerHTML = '';
+    unsolvedTab.innerHTML = '';
+
+    let hasCorrect = false, hasWrong = false, hasUnsolved = false;
+
+    quizData.forEach((item, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+        questionDiv.setAttribute('data-index', index);
+        questionDiv.innerHTML = `<h3>${index + 1}. ${item.question}</h3>`;
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('options');
+
+        const searchButtonsDiv = document.createElement('div');
+        searchButtonsDiv.classList.add('search-buttons');
+
+        const editBtn = document.createElement('button');
+        editBtn.classList.add('edit-btn');
+        editBtn.innerText = 'edit';
+        editBtn.onclick = () => {
+            toggleEditMode(questionDiv, index);
+        };
+
+        const aiBtn = document.createElement('button');
+        aiBtn.classList.add('ai-btn');
+        aiBtn.innerText = 'AI शोधा';
+        aiBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleAiDropdown(aiBtn, item);
+        };
+
+        // Create dropdown for AI services
+        const aiDropdown = document.createElement('div');
+        aiDropdown.classList.add('ai-dropdown');
+        aiServices.forEach(service => {
+            const btn = document.createElement('button');
+            btn.classList.add('ai-dropdown-btn');
+            btn.innerHTML = `<i class="${service.icon}"></i> ${service.name}`;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const searchQuery = `${item.question} पर्याय: ${item.options.join(', ')}`;
+                window.open(`${service.url}${encodeURIComponent(searchQuery)}`, '_blank');
+            };
+            aiDropdown.appendChild(btn);
+        });
+        aiBtn.appendChild(aiDropdown);
+
+        const userAnswer = userAnswers[index];
+
+        if (userAnswer === item.correct_answer) {
+            hasCorrect = true;
+            item.options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('option');
+                optionDiv.innerText = option;
+
+                if (option === item.correct_answer) {
+                    if (improvedQuestions.has(index)) {
+                        optionDiv.classList.add('improved-option');
+                        optionDiv.innerHTML = `
+                            <span>${option}</span>
+                            <span class="improved-text"><i class="fas fa-check-circle"></i> improved</span>
+                        `;
+                    } else {
+                        optionDiv.classList.add('correct');
+                    }
+                }
+
+                optionDiv.style.pointerEvents = 'none';
+                optionsDiv.appendChild(optionDiv);
+            });
+
+            searchButtonsDiv.appendChild(editBtn);
+            searchButtonsDiv.appendChild(aiBtn);
+            questionDiv.appendChild(optionsDiv);
+            questionDiv.appendChild(searchButtonsDiv);
+
+            if (improvedQuestions.has(index)) {
+                correctTab.insertBefore(questionDiv, correctTab.firstChild);
+            } else {
+                correctTab.appendChild(questionDiv);
+            }
+        } else if (userAnswer) {
+            hasWrong = true;
+            const shuffledOptions = shuffleArray([...item.options]);
+            shuffledOptions.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('option');
+                optionDiv.innerText = option;
+                optionDiv.onclick = () => {
+                    handleWrongTabSelection(optionDiv, option, item, optionsDiv, index, questionDiv);
+                };
+                optionsDiv.appendChild(optionDiv);
+            });
+
+            searchButtonsDiv.appendChild(editBtn);
+            searchButtonsDiv.appendChild(aiBtn);
+            questionDiv.appendChild(optionsDiv);
+            questionDiv.appendChild(searchButtonsDiv);
+            wrongTab.appendChild(questionDiv);
+        } else {
+            hasUnsolved = true;
+            item.options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('option');
+                optionDiv.innerText = option;
+                optionDiv.onclick = () => {
+                    handleUnsolvedTabSelection(optionDiv, option, item, optionsDiv, index, questionDiv);
+                };
+                optionsDiv.appendChild(optionDiv);
+            });
+
+            searchButtonsDiv.appendChild(editBtn);
+            searchButtonsDiv.appendChild(aiBtn);
+            questionDiv.appendChild(optionsDiv);
+            questionDiv.appendChild(searchButtonsDiv);
+            unsolvedTab.appendChild(questionDiv);
+        }
+    });
+
+    // Set empty messages only if no questions exist in the respective tab
+    if (!hasCorrect) correctTab.innerHTML = '<p>कोणतेही प्रश्न बरोबर नाहीत.</p>';
+    if (!hasWrong) wrongTab.innerHTML = '<p>कोणतेही प्रश्न चूक नाहीत.</p>';
+    if (!hasUnsolved) unsolvedTab.innerHTML = '<p>कोणतेही प्रश्न सोडवले नाहीत.</p>';
+
+    updateTabCounts();
+    updateProgressBar();
+}
+
+function handleWrongTabSelection(optionDiv, selectedOption, item, optionsDiv, index, questionDiv) {
+    const allOptions = optionsDiv.querySelectorAll('.option');
+
+    allOptions.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        if (opt.innerText === item.correct_answer) {
+            opt.classList.add('correct');
+        } else if (opt === optionDiv && opt.innerText !== item.correct_answer) {
+            opt.classList.add('wrong');
+        }
+    });
+
+    if (selectedOption === item.correct_answer) {
+        if (userAnswers[index] !== item.correct_answer) {
+            score++;
+            document.getElementById('result').innerHTML = `तुमचा स्कोअर: ${score} / ${quizData.length}`;
+        }
+        userAnswers[index] = item.correct_answer;
+        improvedQuestions.add(index);
+
+        allOptions.forEach(opt => {
+            if (opt.innerText === item.correct_answer) {
+                opt.classList.remove('correct');
+                opt.classList.add('improved-option');
+                opt.innerHTML = `
+                    <span>${item.correct_answer}</span>
+                    <span class="improved-text"><i class="fas fa-check-circle"></i> improved</span>
+                `;
+            }
+        });
+
+        questionDiv.classList.add('fade-out');
+        setTimeout(() => {
+            moveToCorrectTab(questionDiv, index);
+            updateTabCounts();
+            updateProgressBar();
+        }, 1000);
+    } else {
+        userAnswers[index] = selectedOption;
+        // Add wrong answer to hardcore
+        addToHardcore(item);
+        updateTabCounts();
+        updateProgressBar();
+    }
+}
+
+function handleUnsolvedTabSelection(optionDiv, selectedOption, item, optionsDiv, index, questionDiv) {
+    const allOptions = optionsDiv.querySelectorAll('.option');
+    allOptions.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        if (opt.innerText === item.correct_answer) {
+            opt.classList.add('correct');
+        } else if (opt === optionDiv && opt.innerText !== item.correct_answer) {
+            opt.classList.add('wrong');
+        }
+    });
+
+    if (selectedOption === item.correct_answer) {
+        score++;
+        document.getElementById('result').innerHTML = `तुमचा स्कोअर: ${score} / ${quizData.length}`;
+        userAnswers[index] = item.correct_answer;
+
+        questionDiv.classList.add('fade-out');
+        setTimeout(() => {
+            moveToCorrectTab(questionDiv, index);
+            updateTabCounts();
+        }, 1000);
+    } else {
+        userAnswers[index] = selectedOption;
+        // Add wrong answer to hardcore
+        addToHardcore(item);
+
+        questionDiv.classList.add('fade-out');
+        setTimeout(() => {
+            const unsolvedTab = document.getElementById('unsolved-tab');
+            const wrongTab = document.getElementById('wrong-tab');
+
+            if (unsolvedTab.contains(questionDiv)) {
+                unsolvedTab.removeChild(questionDiv);
+                questionDiv.classList.remove('fade-out');
+
+                const newOptionsDiv = document.createElement('div');
+                newOptionsDiv.classList.add('options');
+                const shuffledOptions = shuffleArray([...item.options]);
+                shuffledOptions.forEach(option => {
+                    const newOptionDiv = document.createElement('div');
+                    newOptionDiv.classList.add('option');
+                    newOptionDiv.innerText = option;
+                    newOptionDiv.onclick = () => {
+                        handleWrongTabSelection(newOptionDiv, option, item, newOptionsDiv, index, questionDiv);
+                    };
+                    newOptionsDiv.appendChild(newOptionDiv);
+                });
+
+                const oldOptionsDiv = questionDiv.querySelector('.options');
+                questionDiv.replaceChild(newOptionsDiv, oldOptionsDiv);
+
+                const existingSearchButtons = questionDiv.querySelector('.search-buttons');
+                if (existingSearchButtons) {
+                    questionDiv.removeChild(existingSearchButtons);
+                }
+
+                const searchButtonsDiv = document.createElement('div');
+                searchButtonsDiv.classList.add('search-buttons');
+
+                const editBtn = document.createElement('button');
+                editBtn.classList.add('edit-btn');
+                editBtn.innerText = 'edit';
+                editBtn.onclick = () => {
+                    toggleEditMode(questionDiv, index);
+                };
+
+                const aiBtn = document.createElement('button');
+                aiBtn.classList.add('ai-btn');
+                aiBtn.innerText = 'AI शोधा';
+                aiBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleAiDropdown(aiBtn, item);
+                };
+
+                // Create dropdown for AI services
+                const aiDropdown = document.createElement('div');
+                aiDropdown.classList.add('ai-dropdown');
+                aiServices.forEach(service => {
+                    const btn = document.createElement('button');
+                    btn.classList.add('ai-dropdown-btn');
+                    btn.innerHTML = `<i class="${service.icon}"></i> ${service.name}`;
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        const searchQuery = `${item.question} पर्याय: ${item.options.join(', ')}`;
+                        window.open(`${service.url}${encodeURIComponent(searchQuery)}`, '_blank');
+                    };
+                    aiDropdown.appendChild(btn);
+                });
+                aiBtn.appendChild(aiDropdown);
+
+                searchButtonsDiv.appendChild(editBtn);
+                searchButtonsDiv.appendChild(aiBtn);
+                questionDiv.appendChild(searchButtonsDiv);
+
+                wrongTab.appendChild(questionDiv);
+
+                if (wrongTab.children.length > 1 && wrongTab.firstChild.tagName === 'P') {
+                    wrongTab.removeChild(wrongTab.firstChild);
+                }
+            }
+
+            updateTabCounts();
+        }, 1000);
+    }
+}
+
+function moveToCorrectTab(questionDiv, index) {
+    const correctTab = document.getElementById('correct-tab');
+    const wrongTab = document.getElementById('wrong-tab');
+    const unsolvedTab = document.getElementById('unsolved-tab');
+
+    if (wrongTab.contains(questionDiv)) wrongTab.removeChild(questionDiv);
+    if (unsolvedTab.contains(questionDiv)) unsolvedTab.removeChild(questionDiv);
+
+    questionDiv.classList.remove('fade-out');
+
+    if (improvedQuestions.has(index)) {
+        correctTab.insertBefore(questionDiv, correctTab.firstChild);
+    } else {
+        correctTab.appendChild(questionDiv);
+    }
+
+    // Clean up empty tabs after moving
+    if (wrongTab.children.length === 0) wrongTab.innerHTML = '<p>कोणतेही प्रश्न चूक नाहीत.</p>';
+    if (unsolvedTab.children.length === 0) unsolvedTab.innerHTML = '<p>कोणतेही प्रश्न सोडवले नाहीत.</p>';
+    if (correctTab.children.length > 1 && correctTab.firstChild.tagName === 'P') {
+        correctTab.removeChild(correctTab.firstChild);
+    }
+}
+
+function showTab(tabId) {
+    if (isAnimating) return;
+
+    isAnimating = true;
+    const sliderWrapper = document.querySelector('.slider-wrapper');
+    const tabs = {
+        'correct-tab': 0,
+        'wrong-tab': 1,
+        'unsolved-tab': 2
+    };
+    const translateValue = tabs[tabId] * -33.33;
+
+    sliderWrapper.style.transform = `translateX(${translateValue}%)`;
+
+    const radioId = tabId.split('-')[0];
+    const radioElement = document.getElementById(radioId);
+    if (radioElement) {
+        radioElement.checked = true;
+    }
+
+    setTimeout(() => {
+        isAnimating = false;
+    }, 600);
+}
+
+// Initialize hardcore data on page load
+loadHardcoreData();
+    </script>
+</body>
+</html>
