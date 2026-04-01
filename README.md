@@ -11,7 +11,7 @@ A dynamic, feature-rich web application designed for students and educators to p
  * 🌙 Dark Mode UI: Eye-friendly interface built with Tailwind CSS.
 🚀 How to Use
  * Clone the repository:
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone https://github.com/Amey0101/ai-powered-quiz-tester.git
  * Open the App: Double-click the MCQ_test.html file to open it in any modern browser.
  * Upload Questions: Click on "Choose File" and upload a properly formatted .json file (see the format below).
  * Practice: * Choose "रँडम प्रश्न" (Random 10 Questions) or "सर्व प्रश्न" (All Questions).
